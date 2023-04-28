@@ -1,14 +1,8 @@
 import os
 import os.path
-import sys
 
 from PIL import Image
 from PyPDF2 import PdfMerger
-
-
-def main():
-    path = sys.argv[1]
-    convert(path)
 
 
 def convert(path: str):
@@ -33,7 +27,3 @@ def convert(path: str):
 
     for pdf in pdf_list:
         os.remove(pdf)
-
-
-if __name__ == '__main__':
-    main()
