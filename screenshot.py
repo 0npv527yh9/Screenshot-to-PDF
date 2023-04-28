@@ -100,11 +100,8 @@ class App(tk.Tk):
         i = start_number
 
         def shot(_):
-            # Gap between the coordinate obtained by tkinter and the actual coordinate
-            gap = (10, 60)
-
-            x = self.winfo_x() + gap[0] + frame.winfo_x()
-            y = self.winfo_y() + gap[1] + frame.winfo_y()
+            x = self.winfo_rootx() + frame.winfo_x()
+            y = self.winfo_rooty() + frame.winfo_y()
             x2 = x + frame.winfo_width()
             y2 = y + frame.winfo_height()
 
