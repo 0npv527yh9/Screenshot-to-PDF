@@ -28,6 +28,7 @@ class App(tk.Tk):
         self.switch_setting_frame()
 
     def switch_setting_frame(self):
+        self.title('Setting')
         frame = tk.Frame(self)
 
         def add_label(row: int, text: str):
@@ -71,10 +72,9 @@ class App(tk.Tk):
                 path: str = path_label.cget('text')
                 start_number = int(spinbox.get())
                 if os.path.isdir(path):
+                    os.chdir(path)
                     frame.pack_forget()
-                    self.next_frame['setting'](
-                        path = path, start_number = start_number
-                    )
+                    self.next_frame['setting'](start_number = start_number)
             except:
                 pass
 
@@ -86,7 +86,8 @@ class App(tk.Tk):
 
         self.resizable(True, False)
 
-    def switch_shot_frame(self, *, path: str, start_number: int):
+    def switch_shot_frame(self, *, start_number: int):
+        self.title('Press [Enter] to take a screenshot')
         self.resizable(True, True)
         self.geometry('500x500')
         frame = tk.Frame(self, background = 'blue')
@@ -110,7 +111,7 @@ class App(tk.Tk):
             self.deiconify()
 
             nonlocal i
-            file = '{}/{:0>3}.png'.format(path, i)
+            file = '{:0>3}.png'.format(i)
             i += 1
 
             image.save(file)
@@ -122,8 +123,9 @@ class App(tk.Tk):
             from tkinter.messagebox import askyesno
             yes = askyesno(message = 'Convert image to pdf?')
             if yes:
+                png_list = ['{:0>3}.png'.format(j) for j in range(i)]
                 import png2pdf
-                png2pdf.convert(path)
+                png2pdf.convert(png_list)
             self.destroy()
 
         self.protocol("WM_DELETE_WINDOW", end_process)
