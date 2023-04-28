@@ -89,8 +89,8 @@ class App(tk.Tk):
     def switch_shot_frame(self, *, path: str, start_number: int):
         self.resizable(True, True)
         self.geometry('500x500')
-        frame = tk.Frame(self, background = 'white')
-        self.attributes("-transparentcolor", 'white')
+        frame = tk.Frame(self, background = 'blue')
+        self.attributes("-transparentcolor", 'blue')
 
         margin = 20
         frame.pack(padx = margin, pady = margin, expand = True, fill = tk.BOTH)
@@ -120,6 +120,16 @@ class App(tk.Tk):
             print('TAKEN:', file)
 
         self.bind('<Return>', func = shot)
+
+        def end_process():
+            from tkinter.messagebox import askyesno
+            yes = askyesno(message = 'Convert image to pdf?')
+            if yes:
+                import png2pdf
+                png2pdf.convert(path)
+            self.destroy()
+
+        self.protocol("WM_DELETE_WINDOW", end_process)
 
 
 if __name__ == '__main__':

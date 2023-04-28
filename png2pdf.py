@@ -8,6 +8,10 @@ from PyPDF2 import PdfMerger
 
 def main():
     path = sys.argv[1]
+    convert(path)
+
+
+def convert(path: str):
     os.chdir(path)
     png_list = sorted(
         filter(
