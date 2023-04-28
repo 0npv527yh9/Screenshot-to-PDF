@@ -1,5 +1,4 @@
 import os
-import os.path
 
 from PIL import Image
 from PyPDF2 import PdfMerger
@@ -9,7 +8,7 @@ def convert(path: str):
     os.chdir(path)
     png_list = sorted(
         filter(
-            lambda f: os.path.isfile(f) and f.endswith('.png'), os.listdir()
+            lambda f: f.endswith('.png'), os.listdir()
         )
     )
 
