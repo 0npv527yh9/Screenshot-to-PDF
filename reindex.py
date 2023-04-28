@@ -1,22 +1,19 @@
 import os
+from tkinter.filedialog import askdirectory
+
+import resolution
+
 
 def main():
-    d = os.getcwd()
-    path = '../' + input('IB/')
+    resolution.adapt()
+
+    path = askdirectory()
     os.chdir(path)
-    files = get_pngs()
-    reindex(files)
-    os.chdir(d)
 
-def get_pngs():
-    files = os.listdir()
-    files = list(filter(lambda file : file[-4:].lower() == '.png', files))
-    return files
+    png_list = sorted(filter(lambda f: f.endswith('.png'), os.listdir()))
+    for i, png in enumerate(png_list):
+        os.rename(png, '{:0>3}.png'.format(i))
 
-def reindex(files):
-    files.sort()
-    for i, file in enumerate(files, 1):
-        os.rename(file, f'{str(i).zfill(3)}.png')
 
 if __name__ == '__main__':
     main()
