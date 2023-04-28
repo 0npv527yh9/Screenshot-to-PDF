@@ -1,57 +1,126 @@
-from tkinter import filedialog, Tk
-import pyautogui as gui
-import time
+# %%
+import os
+import os.path
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter.filedialog import askdirectory
+from typing import Callable
 
-file = 'config.txt'
-home = r'C:\Users\tafh0\OneDrive\デスクトップ\IB'
+from PIL import ImageGrab
+
+import resolution
+
 
 def main():
-    path, region = get_config()
-    start(path, region)
+    root = App()
+    root.mainloop()
 
-def get_config():
-    res = gui.confirm(text = '初期化しますか？', buttons = ['Yes', 'No'])
-    if res == 'Yes':
-        root = Tk()
-        root.withdraw()
-        path = filedialog.askdirectory(initialdir = home)
-        root.destroy()
-        region = get_region()
-    else:
-        with open(file, encoding = 'utf-8') as f:
-            s = f.read()
-        s = s.split('\n')
-        path = s[0]
-        region = tuple(map(int, s[1].split()))
-    return path, region
 
-def get_region():
-    gui.alert(text = '左上にマウスを合わせる')
-    x1, y1 = gui.position()
-    gui.alert(text = '右下にマウスを合わせる')
-    x2, y2 = gui.position()
-    w = x2 - x1
-    h = y2 - y1
-    return x1, y1, w, h
+class App(tk.Tk):
 
-def start(path, region):
-    i = int(gui.prompt(text = '先頭ページ', default = 1))
-    while True:
-        cmd = gui.confirm(buttons = ('shot', 'resize'))
-        if cmd == 'shot':
-            time.sleep(0.25)
-            image = gui.screenshot(f'{path}/{str(i).zfill(3)}.png', region = region)
+    def __init__(self):
+        resolution.adapt()
+        super().__init__()
+        self.next_frame: dict[str, Callable] = {
+            'setting': self.switch_shot_frame
+        }
+
+        self.switch_setting_frame()
+
+    def switch_setting_frame(self):
+        frame = tk.Frame(self)
+
+        def add_label(row: int, text: str):
+            tk.Label(frame,
+                     text = text).grid(row = row, column = 0, sticky = tk.W)
+
+        add_label(0, 'Save directory')
+        path_label = tk.Label(frame, text = os.getcwd(), anchor = tk.W)
+        path_label.grid(row = 0, column = 1, sticky = tk.EW)
+
+        def set_path():
+            path = askdirectory()
+            path_label.configure(text = path)
+
+        tk.Button(frame, text = '...', command = set_path) \
+            .grid(row = 0, column = 2, sticky = 'news')
+
+        add_label(1, 'Start number')
+        spinbox = ttk.Spinbox(frame, from_ = 0, to = float('inf'))
+        spinbox.insert(0, '0')
+        spinbox.grid(row = 1, column = 1, columnspan = 2, sticky = tk.EW)
+
+        @self.register
+        def validate(value):
+            return value == '' or value.isdigit()
+
+        @self.register
+        def invalid(value):
+            spinbox.delete(0, tk.END)
+            spinbox.insert(0, value)
+
+        spinbox.configure(
+            validatecommand = (validate, '%P'),
+            invalidcommand = (invalid, '%s'),
+            validate = 'key'
+        )
+        spinbox.get()
+
+        def command():
+            try:
+                path: str = path_label.cget('text')
+                start_number = int(spinbox.get())
+                if os.path.isdir(path):
+                    frame.pack_forget()
+                    self.next_frame['setting'](
+                        path = path, start_number = start_number
+                    )
+            except:
+                pass
+
+        tk.Button(frame, text = 'Start', command = command) \
+            .grid(row = 2, column = 0, columnspan = 3)
+
+        frame.columnconfigure(1, weight = 1)
+        frame.pack(fill = tk.X)
+
+        self.resizable(True, False)
+
+    def switch_shot_frame(self, *, path: str, start_number: int):
+        self.resizable(True, True)
+        self.geometry('500x500')
+        frame = tk.Frame(self, background = 'white')
+        self.attributes("-transparentcolor", 'white')
+
+        margin = 20
+        frame.pack(padx = margin, pady = margin, expand = True, fill = tk.BOTH)
+
+        self.config(background = 'red')
+
+        i = start_number
+
+        def shot(_):
+            # Gap between the coordinate obtained by tkinter and the actual coordinate
+            gap = (10, 60)
+
+            x = self.winfo_x() + gap[0] + frame.winfo_x()
+            y = self.winfo_y() + gap[1] + frame.winfo_y()
+            x2 = x + frame.winfo_width()
+            y2 = y + frame.winfo_height()
+
+            self.withdraw()
+            image = ImageGrab.grab((x, y, x2, y2))
+            self.deiconify()
+
+            nonlocal i
+            file = '{}/{:0>3}.png'.format(path, i)
             i += 1
-        elif cmd == 'resize':
-            region = get_region()
-        else:
-            break
-    save_config(path, region)
 
-def save_config(path, region):
-    s = path + '\n' + ' '.join(map(str, region))
-    with open(file, 'w', encoding = 'utf-8') as f:
-        f.write(s)
+            image.save(file)
+            print('TAKEN:', file)
+
+        self.bind('<Return>', func = shot)
+
 
 if __name__ == '__main__':
     main()
