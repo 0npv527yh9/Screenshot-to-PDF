@@ -122,7 +122,7 @@ class App(tk.Tk):
             file = '{:0>3}.png'.format(i)
             i += 1
 
-            image.save(file)
+            image.save(file, quality = 100)
             print('TAKEN:', file)
 
         self.bind('<Return>', func = shot)

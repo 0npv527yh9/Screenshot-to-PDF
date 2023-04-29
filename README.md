@@ -38,4 +38,4 @@ Press Enter on the screen above to save the following image:
 
 ## Required External Libraries
 - `Pillow`
-- `PyPDF2`
+- `img2pdf`
