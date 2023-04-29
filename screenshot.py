@@ -90,8 +90,16 @@ class App(tk.Tk):
         self.title('Press [Enter] to take a screenshot')
         self.resizable(True, True)
         self.geometry('500x500')
-        frame = tk.Frame(self, background = 'blue')
-        self.attributes("-transparentcolor", 'blue')
+
+        frame = tk.Frame(self)
+
+        if os.name == 'nt':
+            transparent_color = 'blue'
+            frame['bg'] = transparent_color
+            self.attributes("-transparentcolor", transparent_color)
+        else:
+            self.wm_attributes("-transparent", True)
+            frame['bg'] = 'systemTransparent'
 
         margin = 20
         frame.pack(padx = margin, pady = margin, expand = True, fill = tk.BOTH)
