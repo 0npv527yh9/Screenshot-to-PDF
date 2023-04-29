@@ -36,6 +36,14 @@ Press Enter on the screen above to save the following image:
     - A dialog box will appear. Select the directory where the you saved images.
     
 
-## Required External Libraries
+## Installation
+```console
+$ git clone git@github.com:0npv527yh9/Screenshot-to-PDF.git
+$ cd Screenshot-to-PDF
+$ pip install -r requirements.txt
+```
+- Of course, you can create a virtual environment if necessary.
+
+### Required External Libraries
 - `Pillow`
 - `img2pdf`
